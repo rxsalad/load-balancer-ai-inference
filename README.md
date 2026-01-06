@@ -66,7 +66,7 @@ Client applications also have key requirements:
 
 **Notes:** Inference servers typically have long startup times—due to pulling container images, downloading models, and performing warm-up—which can take tens of minutes. Real-time autoscaling to match GPU resources to AI system load on a minute-by-minute basis is generally impractical. Therefore, careful service planning and continuous monitoring are essential.
 
-## Application Constraints
+## Application Constraints and Alternative Solutions
 
 Given common maximum timeout limits and the need for a good user experience, the solution architecture described above is best suited for real-time inference workloads and synchronous requests that complete in under `100 seconds`. Typical examples include image generation, short audio transcription, and streaming LLM inference where the first token is returned quickly.
 
