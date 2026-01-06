@@ -46,7 +46,7 @@ For general use cases, a well-designed custom inference server that incorporates
 
 In addition to selecting a robust inference server, it is essential to optimize the end-to-end solution architecture and configuration to ensure high performance and reliability.
 
-<img src="images/solution.png" alt="soltuion" width="800" height="400"/>
+<img src="images/solution.png" alt="soltuion" width="800" height="360"/>
 
 A load balancer typically provides options for controlling how requests are forwarded to inference servers, including routing algorithms, concurrency, timeouts, and health checks. These settings should be carefully chosen and aligned with the capabilities of the inference servers.
 
@@ -68,11 +68,10 @@ Client applications also have key requirements:
 
 ## Application Constraints
 
-Given the common maximum timeout limitations and for a better user experience, the solution  architecture described above is best suited for inference tasks and synchronous calls that complete in under `100` seconds, such as image generation, short audio transcription, or streaming LLM inference where the first token can be returned quickly.
+Given common maximum timeout limits and the need for a good user experience, the solution architecture described above is best suited for real-time inference workloads and synchronous requests that complete in under `100 seconds`. Typical examples include image generation, short audio transcription, and streaming LLM inference where the first token is returned quickly.
 
-For **longer-running tasks or batch jobs** that may take hours or even days per job—such as non-streaming LLM inference, video generation, long audio transcription, 3D rendering or molecular dynamics simulations—**an asynchronous, queue-based approach** is recommended to handle requests reliably without exceeding timeout limits. This typically involves integrating inference servers with a job queue, such as **AWS SQS**, **GCP Pub/Sub**, or a custom queue implemented using **Redis** or **RabbitMQ**. 
+For **longer-running tasks or batch jobs** that may take hours or even days per job—such as non-streaming LLM inference, video generation, long audio transcription, 3D rendering or molecular dynamics simulations—**an asynchronous, queue-based approach** is recommended to ensure reliable job execution with proper state management. This typically involves integrating inference servers with a job queue, such as **AWS SQS**, **GCP Pub/Sub**, or a custom queue built with **RabbitMQ**. Persistent storage (e.g., cloud object storage or a database) is also required to track job state, intermediate artifacts, and final results.
 
-To implement a custom queue with Redis, please refer to [this repository](https://github.com/rxsalad/redis-queue-ai-inference), which supports synchronous and asynchronous calls, as well as streaming applications.
+Load balancer–based solutions often expose public endpoints for upstream client applications or end users, which introduces additional operational requirements such as DNS management and security controls—including TLS termination, certificates, authentication, rate limiting, and DDoS protection. Endpoints may also change during application upgrades or infrastructure expansion. In these scenarios, a **tunnel-based solution** can be considered to simplify application access and traffic management. For implementation details, see [this repository](https://github.com/rxsalad/tunnels-for-ai-inference).
 
-The Load balancer–based solutions often expose a public endpoint for upstream client applications or end users, which requires DNS management and security controls—such as TLS termination and certificates, authentication, rate limiting, and DDoS protection. Endpoints may also change during application upgrades or infrastructure expansion. In such scenarios, a **tunnel-based solution** can be considered to simplify application traffic management. For implementation details, see [this repository](https://github.com/rxsalad/tunnels-for-ai-inference).
-
+If optimizing load balancer–based system settings becomes challenging, consider implementing a custom Redis-based queue. You can refer to [this repository](https://github.com/rxsalad/redis-queue-ai-inference), which supports synchronous and asynchronous requests as well as streaming workloads. In many cases, this approach can replace a load balancer for real-time or near–real-time applications while providing greater control over traffic management and back-pressure.
